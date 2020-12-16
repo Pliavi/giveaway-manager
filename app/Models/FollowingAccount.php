@@ -18,10 +18,10 @@ class FollowingAccount extends Model
     ];
 
     public function user() {
-        return $this->belongsTo("App\Models\User");
+        return $this->belongsTo(User::class);
     }
 
     public function socialNetwork(){
-        return $this->belongsTo("App\Models\SocialNetwork");
+        return $this->belongsTo(SocialNetwork::class);
     }
 }
