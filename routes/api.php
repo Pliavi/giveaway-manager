@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\GiveawayController;
+use App\Http\Controllers\LoginController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +16,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+
+// Route::post("/login", [GiveawayController::class, "login"]);
+Route::middleware('auth:sanctum')->group(function() {
+    Route::apiResource('giveaways', GiveawayController::class);
+});
+// Route::middleware('auth:sanctum')->post('/teste', [GiveawayController::class, "store"]);
+
+Route::apiResource('login', LoginController::class);
