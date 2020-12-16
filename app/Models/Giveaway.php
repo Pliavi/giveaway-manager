@@ -25,12 +25,12 @@ class Giveaway extends Model
     public function followingAccounts()
     {
         return $this
-            ->belongsToMany("App\Models\FollowingAccount")
-            ->using("\App\Models\FollowingAccountGiveaway");
+            ->belongsToMany(FollowingAccount::class)
+            ->using(FollowingAccountGiveaway::class);
     }
 
     public function user()
     {
-        return $this->belongsTo("App\Models\User");
+        return $this->belongsTo(User::class);
     }
 }
