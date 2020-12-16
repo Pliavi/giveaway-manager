@@ -17,8 +17,15 @@ class CreateGiveawayFollowingAssociation extends Migration
             $table->id();
             $table->timestamps();
             
-            $table->foreignId('following_account_id')->constrained();
-            $table->foreignId('giveaway_id')->constrained();
+            $table->foreignId('following_account_id')
+                ->constrained()
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+                
+            $table->foreignId('giveaway_id')
+                ->constrained()
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
         });
     }
 
