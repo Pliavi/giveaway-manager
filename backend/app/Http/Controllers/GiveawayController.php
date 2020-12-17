@@ -83,7 +83,7 @@ class GiveawayController extends Controller
      */
     public function update(Request $request, Giveaway $giveaway)
     {
-        DB::transaction(function() use ($request, $giveaway){
+        DB::transaction(function () use ($request, $giveaway) {
             $giveawayData = $request->get("giveaway_data");
             $addedFollowingAccountsDataArray = $request->get("added_following_accounts", []);
             $removedFollowingAccountNames = $request->get("removed_following_accounts", []);
@@ -96,7 +96,7 @@ class GiveawayController extends Controller
                 ->whereIn($removedFollowingAccountNames)
                 ->get();
 
-            foreach($followingAccountsToRemove as $account) {
+            foreach ($followingAccountsToRemove as $account) {
                 $account->user()->dissociate();
                 $account->giveaways()->dissociate();
             }
