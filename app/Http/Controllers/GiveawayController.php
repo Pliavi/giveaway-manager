@@ -80,7 +80,35 @@ class GiveawayController extends Controller
      */
     public function update(Request $request, Giveaway $giveaway)
     {
-        //
+        DB::transaction(function() use ($request, $giveaway){
+            $giveawayData = $request->get("giveaway_data");
+            $addedFollowingAccountsDataArray = $request->get("added_following_accounts", []);
+            $removedFollowingAccountNames = $request->get("removed_following_accounts", []);
+
+            $giveaway->update($giveawayData);
+
+            $followingAccountsToRemove = $request
+                ->user()
+                ->followingAccounts()
+                ->whereIn($removedFollowingAccountNames)
+                ->get();
+
+            foreach($followingAccountsToRemove as $account) {
+                $account->user()->dissociate();
+                $account->giveaways()->dissociate();
+            }
+
+            $followingAccounts = array_map(function ($accountData) use ($request) {
+                $user = $request->user();
+                $account = $user->followingAccounts()->firstOrNew($accountData);
+                $account->user()->associate(Auth::id());
+                $account->socialNetwork()->associate($accountData['social_network_id']);
+
+                return $account;
+            }, $addedFollowingAccountsDataArray);
+
+            $giveaway->followingAccounts()->saveMany($followingAccounts);
+        });
     }
 
     /**
