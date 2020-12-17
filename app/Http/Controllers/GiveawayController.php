@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\GiveawayStoreRequest;
-use App\Models\FollowingAccount;
 use App\Models\Giveaway;
-use App\Models\User;
-use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -27,7 +25,13 @@ class GiveawayController extends Controller
      */
     public function index(Request $request)
     {
-        return $request->user()->giveaways[0]->user_id;
+        $now = Carbon::now();
+        $giveawaysQuery = $request->user()->giveaways();
+
+        return [
+            "finished" => $giveawaysQuery->where("finished_data", "<=", $now)->where("is_finished", false),
+            "running" => $giveawaysQuery->get()->where("finished_data", ">", $now)
+        ];
     }
 
     /**
@@ -54,7 +58,6 @@ class GiveawayController extends Controller
 
                 return $account;
             }, $followingAccountsDataArray);
-
 
             $giveaway->followingAccounts()->saveMany($followingAccounts);
         });
