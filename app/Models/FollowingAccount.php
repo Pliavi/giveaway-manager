@@ -24,4 +24,11 @@ class FollowingAccount extends Model
     public function socialNetwork(){
         return $this->belongsTo(SocialNetwork::class);
     }
+
+    public function giveaways()
+    {
+        return $this
+            ->belongsToMany(Giveaway::class)
+            ->using(FollowingAccountGiveaway::class);
+    }
 }
