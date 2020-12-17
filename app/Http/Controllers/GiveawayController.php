@@ -39,7 +39,7 @@ class GiveawayController extends Controller
     public function store(GiveawayStoreRequest $request)
     {
         DB::transaction(function () use ($request) {
-            $giveawayData = $request->except("following_accounts");
+            $giveawayData = $request->get("giveaway_data");
             $followingAccountsDataArray = $request->get("following_accounts", []);
 
             $giveaway = new Giveaway($giveawayData);
