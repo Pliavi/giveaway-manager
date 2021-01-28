@@ -5,7 +5,6 @@ namespace App\Policies;
 use App\Models\Giveaway;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use phpDocumentor\Reflection\Types\Boolean;
 
 class GiveawayPolicy
 {
