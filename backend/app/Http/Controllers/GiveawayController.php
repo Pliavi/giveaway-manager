@@ -43,17 +43,17 @@ class GiveawayController extends Controller
     public function store(GiveawayStoreRequest $request)
     {
         DB::transaction(function () use ($request) {
-            $giveawayData = $request->get("giveaway_data");
+            $sessionUser = $request->user();
+            $giveawayData = $request->except("following_accounts");
             $followingAccountsDataArray = $request->get("following_accounts", []);
 
             $giveaway = new Giveaway($giveawayData);
-            $giveaway->user()->associate(Auth::user());
+            $giveaway->user()->associate($sessionUser);
             $giveaway->save();
 
-            $followingAccounts = array_map(function ($accountData) use ($request) {
-                $user = $request->user();
-                $account = $user->followingAccounts()->firstOrNew($accountData);
-                $account->user()->associate(Auth::id());
+            $followingAccounts = array_map(function ($accountData) use ($request, $sessionUser) {
+                $account = $sessionUser->followingAccounts()->firstOrNew($accountData);
+                $account->user()->associate($sessionUser->id);
                 $account->socialNetwork()->associate($accountData['social_network_id']);
 
                 return $account;
@@ -83,7 +83,7 @@ class GiveawayController extends Controller
      */
     public function update(Request $request, Giveaway $giveaway)
     {
-        DB::transaction(function () use ($request, $giveaway) {
+        return DB::transaction(function () use ($request, $giveaway) {
             $giveawayData = $request->get("giveaway_data");
             $addedFollowingAccountsDataArray = $request->get("added_following_accounts", []);
             $removedFollowingAccountNames = $request->get("removed_following_accounts", []);
@@ -111,6 +111,8 @@ class GiveawayController extends Controller
             }, $addedFollowingAccountsDataArray);
 
             $giveaway->followingAccounts()->saveMany($followingAccounts);
+
+            return $giveaway;
         });
     }
 
