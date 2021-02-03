@@ -8,7 +8,6 @@ use App\Models\Giveaway;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class GiveawayController extends Controller
@@ -100,35 +99,26 @@ class GiveawayController extends Controller
     public function update(Request $request, Giveaway $giveaway)
     {
         return DB::transaction(function () use ($request, $giveaway) {
-            $giveawayData = $request->get("giveaway_data");
-            $addedFollowingAccountsDataArray = $request->get("added_following_accounts", []);
-            $removedFollowingAccountNames = $request->get("removed_following_accounts", []);
+            $giveawayData = $request->all();
+            $followingAccountsToAdd = $request->get("added_following_accounts", []);
+            $followingAccountsToRemove = $request->get("removed_following_accounts", []);
 
             $giveaway->update($giveawayData);
+            $giveaway->followingAccounts()->detach($followingAccountsToRemove);
 
-            $followingAccountsToRemove = $request
-                ->user()
-                ->followingAccounts()
-                ->whereIn($removedFollowingAccountNames)
-                ->get();
-
-            foreach ($followingAccountsToRemove as $account) {
-                $account->user()->dissociate();
-                $account->giveaways()->dissociate();
-            }
-
-            $followingAccounts = array_map(function ($accountData) use ($request) {
-                $user = $request->user();
-                $account = $user->followingAccounts()->firstOrNew($accountData);
-                $account->user()->associate(Auth::id());
-                $account->socialNetwork()->associate($accountData['social_network_id']);
+            $followingAccounts = array_map(function ($accountData) {
+                /** @var FollowingAccount */
+                $account = FollowingAccount::firstOrNew($accountData);
+                if (!$account->exists) {
+                    $account->socialNetwork()->associate($accountData['social_network_id']);
+                }
 
                 return $account;
-            }, $addedFollowingAccountsDataArray);
+            }, $followingAccountsToAdd);
 
             $giveaway->followingAccounts()->saveMany($followingAccounts);
 
-            return $giveaway;
+            return $giveaway->load("followingAccounts");
         });
     }
 
