@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\GiveawayStoreRequest;
 use App\Models\Giveaway;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -25,12 +26,20 @@ class GiveawayController extends Controller
      */
     public function index(Request $request)
     {
+        /** @var User */
+        $user = $request->user();
         $now = Carbon::now();
-        $giveawaysQuery = $request->user()->giveaways();
 
         return [
-            "finished" => $giveawaysQuery->where("finished_data", "<=", $now)->where("is_finished", false),
-            "running" => $giveawaysQuery->get()->where("finished_data", ">", $now)
+            "finished" => $user
+                ->giveaways()
+                ->whereDate("finish_date", "<", $now)
+                ->orWhere("is_finished", true)
+                ->get()->toArray(),
+            "running" => $user
+                ->giveaways()
+                ->whereDate("finish_date", ">=", $now)
+                ->get()->toArray(),
         ];
     }
 
