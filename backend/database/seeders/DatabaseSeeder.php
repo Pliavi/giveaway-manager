@@ -17,10 +17,11 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        User::factory(["email" => "teste@teste.com"])->create();
-        User::factory(1)->create();
+        User::factory(["email" => "seed@seed.com"])->create();
+        $user = User::factory()->create();
         SocialNetwork::factory(2)->create();
         FollowingAccount::factory(2)->create();
-        Giveaway::factory(2)->create();
+
+        $user->giveaways()->saveMany(Giveaway::factory(2)->make());
     }
 }

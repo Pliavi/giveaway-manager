@@ -24,14 +24,12 @@ class GiveawayFactory extends Factory
      */
     public function definition()
     {
-        $users = User::all();
 
         return [
             "name" =>  $this->faker->name,
             "link" =>  $this->faker->text(50),
             "description" =>  $this->faker->text(),
-            "finish_date" =>  Carbon::now()->addDay(1)->toString(),
-            "user_id" => $users->random()->id,
+            "finish_date" =>  Carbon::now()->addDay(),
         ];
     }
 

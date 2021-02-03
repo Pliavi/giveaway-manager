@@ -24,14 +24,11 @@ class FollowingAccountFactory extends Factory
      */
     public function definition()
     {
-        $users = User::all();
-        $socialNetworks = SocialNetwork::all();
+        $socialNetwork = SocialNetwork::factory()->create();
 
         return [
             "username" => $this->faker->userName,
-            "social_network_id" => $users->random()->id,
-            "user_id" => $socialNetworks->random()->id,
+            "social_network_id" => $socialNetwork->id,
         ];
     }
-
 }
