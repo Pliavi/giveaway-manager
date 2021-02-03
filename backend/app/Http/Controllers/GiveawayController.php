@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\GiveawayStoreRequest;
+use App\Models\FollowingAccount;
 use App\Models\Giveaway;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -51,25 +52,31 @@ class GiveawayController extends Controller
      */
     public function store(GiveawayStoreRequest $request)
     {
-        DB::transaction(function () use ($request) {
-            $sessionUser = $request->user();
-            $giveawayData = $request->except("following_accounts");
-            $followingAccountsDataArray = $request->get("following_accounts", []);
+        return DB::transaction(
+            function () use ($request) {
+                $sessionUser = $request->user();
+                $giveawayData = $request->except("following_accounts");
+                $followingAccountsDataArray = $request->get("following_accounts", []);
 
-            $giveaway = new Giveaway($giveawayData);
-            $giveaway->user()->associate($sessionUser);
-            $giveaway->save();
+                $giveaway = new Giveaway($giveawayData);
+                $giveaway->user()->associate($sessionUser);
+                $giveaway->save();
 
-            $followingAccounts = array_map(function ($accountData) use ($request, $sessionUser) {
-                $account = $sessionUser->followingAccounts()->firstOrNew($accountData);
-                $account->user()->associate($sessionUser->id);
-                $account->socialNetwork()->associate($accountData['social_network_id']);
+                $followingAccounts = array_map(function ($accountData) {
+                    /** @var FollowingAccount */
+                    $account = FollowingAccount::firstOrNew($accountData);
+                    if (!$account->exists) {
+                        $account->socialNetwork()->associate($accountData['social_network_id']);
+                    }
 
-                return $account;
-            }, $followingAccountsDataArray);
+                    return $account;
+                }, $followingAccountsDataArray);
 
-            $giveaway->followingAccounts()->saveMany($followingAccounts);
-        });
+                $giveaway->followingAccounts()->saveMany($followingAccounts);
+
+                return $giveaway->load("followingAccounts");
+            }
+        );
     }
 
     /**

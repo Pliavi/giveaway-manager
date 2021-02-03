@@ -44,8 +44,4 @@ class User extends Authenticatable
     public function giveaways(){
         return $this->hasMany(Giveaway::class);
     }
-
-    public function followingAccounts(){
-        return $this->hasMany(FollowingAccount::class);
-    }
 }

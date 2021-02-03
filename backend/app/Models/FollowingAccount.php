@@ -17,11 +17,8 @@ class FollowingAccount extends Model
         "is_unfollowed", "boolean"
     ];
 
-    public function user() {
-        return $this->belongsTo(User::class);
-    }
-
-    public function socialNetwork(){
+    public function socialNetwork()
+    {
         return $this->belongsTo(SocialNetwork::class);
     }
 
