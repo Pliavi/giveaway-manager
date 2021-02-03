@@ -21,7 +21,6 @@ class CreateFollowingAccountsTable extends Migration
 
             $table->timestamps();
             
-            $table->foreignId('user_id')->constrained();
             $table->foreignId('social_network_id')->constrained();
         });
     }
