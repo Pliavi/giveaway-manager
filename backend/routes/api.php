@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:sanctum')->group(function() {
-    Route::apiResource('giveaways', GiveawayController::class);
+    Route::apiResource('giveaway', GiveawayController::class);
 });
 
 Route::apiResource('login', LoginController::class);
