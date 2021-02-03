@@ -12,14 +12,18 @@ class Giveaway extends Model
     protected $fillable = [
         "name",
         "link",
-        "descrioption",
+        "description",
         "finish_date",
     ];
 
     protected $casts = [
-        'finish_date' => 'datetime',
+        'finish_date' => 'datetime:Y-m-d',
         'is_notified' => 'boolean',
         'is_finished' => 'boolean',
+    ];
+
+    protected $dates = [
+        'finish_date'
     ];
 
     public function followingAccounts()
